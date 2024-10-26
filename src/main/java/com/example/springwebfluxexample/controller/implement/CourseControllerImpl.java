@@ -1,6 +1,7 @@
 package com.example.springwebfluxexample.controller.implement;
 
 import com.example.springwebfluxexample.controller.CourseController;
+import com.example.springwebfluxexample.dto.course.CourseDto;
 import com.example.springwebfluxexample.entity.Course;
 import com.example.springwebfluxexample.model.course.request.CreateCourseRequest;
 import com.example.springwebfluxexample.service.CourseService;
@@ -18,14 +19,19 @@ public class CourseControllerImpl implements CourseController {
     private final CourseService courseService;
 
     @Override
-    public ResponseEntity<Mono<Course>> create(String userId, CreateCourseRequest request) {
+    public ResponseEntity<Mono<Course>> create(Long userId, CreateCourseRequest request) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(courseService.create(userId, request));
     }
 
     @Override
-    public ResponseEntity<Flux<Course>> getCourses() {
+    public ResponseEntity<Flux<CourseDto>> getCourses() {
         return ResponseEntity.ok(courseService.gerCourses());
+    }
+
+    @Override
+    public ResponseEntity<Mono<Boolean>> join(Long userId, Long courseId) {
+        return ResponseEntity.ok(courseService.joinCourse(userId, courseId));
     }
 }

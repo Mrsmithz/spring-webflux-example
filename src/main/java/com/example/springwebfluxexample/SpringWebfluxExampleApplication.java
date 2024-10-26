@@ -2,12 +2,12 @@ package com.example.springwebfluxexample;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.data.mongodb.config.EnableReactiveMongoAuditing;
-import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
+import org.springframework.data.r2dbc.config.EnableR2dbcAuditing;
+import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories;
 
 @SpringBootApplication
-@EnableReactiveMongoRepositories
-@EnableReactiveMongoAuditing
+@EnableR2dbcAuditing
+@EnableR2dbcRepositories
 public class SpringWebfluxExampleApplication {
 
     public static void main(String[] args) {

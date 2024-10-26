@@ -6,38 +6,37 @@ import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.DocumentReference;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.Instant;
-import java.util.List;
 
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "user")
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+@Table
 public class User {
 
     @Id
-    private String id;
+    private Long id;
 
+    @Column
     private String firstName;
 
+    @Column
     private String lastName;
 
-    @Indexed(unique = true)
+    @Column
     private String email;
 
+    @Column
     private String picture;
 
+    @Column
     private Role role;
-
-    @DocumentReference(lazy = true, collection = "course")
-    private List<Course> courses;
 
     @CreatedDate
     private Instant createdAt;

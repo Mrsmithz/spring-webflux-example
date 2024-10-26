@@ -2,46 +2,25 @@ package com.example.springwebfluxexample.entity;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.Instant;
 
 @Setter
 @Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-@Table
-public class Course {
+@Table("users_in_courses")
+public class UserCourse {
 
-    @Id
-    private Long id;
+    private Long userId;
 
-    @Column
-    private String title;
-
-    @Column
-    private String password;
-
-    @Column
-    private String description;
-
-    @Column
-    private String banner;
-
-    @Column
-    private Status status;
-
-    @Column
-    private Long createdBy;
+    private Long courseId;
 
     @CreatedDate
     private Instant createdAt;
