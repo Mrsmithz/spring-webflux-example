@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -44,16 +46,27 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public Flux<CourseDto> gerCourses() {
-        return courseRepository.findAll()
-                .flatMap(course -> userCourseRepository.findAll()
-                        .filter(userCourse -> userCourse.getCourseId().equals(course.getId()))
-                        .map(UserCourse::getUserId)
-                        .collectList()
-                        .flatMapMany(Flux::just)
-                        .flatMap(userService::findAllById)
-                        .collectList()
-                        .flatMapMany(Flux::just)
-                        .flatMap(users -> Flux.just(courseMapper.toDto(course, users))));
+        Flux<List<UserCourse>> UserCourses = userCourseRepository.findAll()
+                .collectList()
+                .flatMapMany(Flux::just);
+        Flux<List<Course>> courseList = courseRepository.findAll()
+                .collectList()
+                .flatMapMany(Flux::just);
+
+        return Flux.zip(courseList, UserCourses)
+                .flatMap(tuple -> Flux.just(tuple.getT1())
+                        .flatMapIterable(entry -> entry)
+                        .flatMap(course -> {
+                            List<Long> userList = tuple.getT2()
+                                    .stream()
+                                    .filter(userCourse -> userCourse.getCourseId().equals(course.getId()))
+                                    .map(UserCourse::getUserId)
+                                    .toList();
+                            return userService.findAllById(userList)
+                                    .collectList()
+                                    .flatMapMany(Flux::just)
+                                    .flatMap(users -> Flux.just(courseMapper.toDto(course, users)));
+                        }));
     }
 
     @Override
