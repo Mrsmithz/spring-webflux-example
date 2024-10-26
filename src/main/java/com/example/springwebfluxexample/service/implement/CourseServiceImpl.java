@@ -2,6 +2,7 @@ package com.example.springwebfluxexample.service.implement;
 
 import com.example.springwebfluxexample.dto.course.CourseDto;
 import com.example.springwebfluxexample.entity.Course;
+import com.example.springwebfluxexample.entity.User;
 import com.example.springwebfluxexample.entity.UserCourse;
 import com.example.springwebfluxexample.mapper.CourseMapper;
 import com.example.springwebfluxexample.model.course.request.CreateCourseRequest;
@@ -53,20 +54,28 @@ public class CourseServiceImpl implements CourseService {
                 .collectList()
                 .flatMapMany(Flux::just);
 
-        return Flux.zip(courseList, UserCourses)
-                .flatMap(tuple -> Flux.just(tuple.getT1())
-                        .flatMapIterable(entry -> entry)
+        Flux<List<User>> userList = userService.getUsers()
+                .collectList()
+                .flatMapMany(Flux::just);
+
+        return Flux.zip(courseList, UserCourses, userList)
+                .flatMap(tuple -> Flux.fromIterable(tuple.getT1())
                         .flatMap(course -> {
-                            List<Long> userList = tuple.getT2()
-                                    .stream()
+
+                            Flux<List<Long>> filteredUserIdList = Flux.fromIterable(tuple.getT2())
                                     .filter(userCourse -> userCourse.getCourseId().equals(course.getId()))
                                     .map(UserCourse::getUserId)
-                                    .toList();
-                            return userService.findAllById(userList)
                                     .collectList()
-                                    .flatMapMany(Flux::just)
-                                    .flatMap(users -> Flux.just(courseMapper.toDto(course, users)));
+                                    .flatMapMany(Flux::just);
+
+                            Flux<List<User>> filteredUserList = Flux.fromIterable(tuple.getT3())
+                                    .filterWhen(user -> filteredUserIdList.any(longs -> longs.contains(user.getId())))
+                                    .collectList()
+                                    .flatMapMany(Flux::just);
+
+                            return filteredUserList.flatMap(users -> Flux.just(courseMapper.toDto(course, users)));
                         }));
+
     }
 
     @Override
